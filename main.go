@@ -27,6 +27,36 @@ func main() {
 
 	fmt.Println(lst.String())
 
+	stack := ds.Stack[int]{}
+
+	stack.Push(1)
+	stack.Push(2)
+	stack.Push(3)
+
+	fmt.Println(stack.String())
+
+	v, err := stack.Pop()
+
+	if err != nil {
+		fmt.Println("err pop", err)
+	}
+
+	fmt.Println("pop", v)
+
+	v2, err := stack.Peek()
+
+	if err != nil {
+		fmt.Println("peek err", err)
+	}
+
+	fmt.Println("peek", v2)
+
+	fmt.Println(stack.String())
+
+
+
+
+
     // http.HandleFunc("/hello", helloHandler)
     // http.HandleFunc("/headers", headersHandler)
 

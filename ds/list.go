@@ -5,20 +5,20 @@ import (
 	"strings"
 )
 
-type node[T comparable] struct {
+type listNode[T comparable] struct {
     val  T
-	prev *node[T]
-    next *node[T]
+	prev *listNode[T]
+    next *listNode[T]
 }
 
 type List[T comparable] struct {
-    head *node[T]
-	tail *node[T]
+    head *listNode[T]
+	tail *listNode[T]
 }
 
 func (lst *List[T]) Append(t T) {
     if lst.IsEmpty() {
-		newNode := &node[T]{
+		newNode := &listNode[T]{
 			val: t,
 		}
 		
@@ -27,7 +27,7 @@ func (lst *List[T]) Append(t T) {
         return
     }
 
-	newNode := &node[T]{
+	newNode := &listNode[T]{
         val: t,
 		prev: lst.tail,
     }
@@ -39,7 +39,7 @@ func (lst *List[T]) Append(t T) {
 }
 
 func (lst *List[T]) Prepend(t T) {
-    newNode := &node[T]{
+    newNode := &listNode[T]{
         val: t,
         next: lst.head,
     }
@@ -68,8 +68,8 @@ func (lst *List[T]) IsEmpty() bool {
 func (lst *List[T]) Reverse() {
 	lst.tail = lst.head
 	curr := lst.head
-	var prev *node[T]
-	var nextTmp *node[T]
+	var prev *listNode[T]
+	var nextTmp *listNode[T]
 	for curr != nil {
 		nextTmp, curr.next = curr.next, prev
 		prev, curr = curr, nextTmp
@@ -203,7 +203,7 @@ func (lst *List[T]) InsertAt(index int, t T) (bool, error) {
 
 	if index == 0 {
 		
-		newNode := &node[T]{
+		newNode := &listNode[T]{
 			val: t,
 			next: lst.head,
 		}
@@ -215,7 +215,7 @@ func (lst *List[T]) InsertAt(index int, t T) (bool, error) {
 	}
 
 	if index == len {
-		newNode := &node[T]{
+		newNode := &listNode[T]{
 			val: t,
 			prev: lst.tail.prev,
 		}
@@ -232,7 +232,7 @@ func (lst *List[T]) InsertAt(index int, t T) (bool, error) {
 	for curr != nil {
 		if i == index {
 			tmpNext := curr.next
-			newNode := &node[T]{
+			newNode := &listNode[T]{
 				val: t,
 				prev: curr,
 				next: tmpNext,

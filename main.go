@@ -23,7 +23,9 @@ func main() {
 
 	fmt.Println("reversed",lst.String())
 
-	// fmt.Println(lst.String())
+	lst.InsertAt(6, 500)
+
+	fmt.Println(lst.String())
 
     // http.HandleFunc("/hello", helloHandler)
     // http.HandleFunc("/headers", headersHandler)

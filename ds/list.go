@@ -11,10 +11,6 @@ type node[T comparable] struct {
     next *node[T]
 }
 
-func (n node[T]) String() string {
-	return fmt.Sprintf("val: %v, prev: %v, next: %v\n", n.val, n.prev, n.next)
-}
-
 type List[T comparable] struct {
     head *node[T]
 	tail *node[T]
@@ -194,6 +190,63 @@ func (lst *List[T]) RemoveAtIndex(index int) (bool, error) {
 		curr = curr.next
 		i++
     }
+
+	return false, fmt.Errorf("index out of bounds")
+}
+
+func (lst *List[T]) InsertAt(index int, t T) (bool, error) {
+	len := lst.Len()
+
+	if index < 0 || index > len {
+		return false, fmt.Errorf("index out of bounds")
+	}
+
+	if index == 0 {
+		
+		newNode := &node[T]{
+			val: t,
+			next: lst.head,
+		}
+
+		lst.head.prev = newNode
+		lst.head = newNode
+
+		return true, nil
+	}
+
+	if index == len {
+		newNode := &node[T]{
+			val: t,
+			prev: lst.tail.prev,
+		}
+
+		lst.tail.next = newNode
+		lst.tail = newNode
+
+		return true, nil
+	}
+
+	curr := lst.head
+	i := 1
+
+	for curr != nil {
+		if i == index {
+			tmpNext := curr.next
+			newNode := &node[T]{
+				val: t,
+				prev: curr,
+				next: tmpNext,
+			}
+
+			curr.next = newNode
+			
+
+			return true, nil
+		}
+
+		curr = curr.next
+		i++
+	}
 
 	return false, fmt.Errorf("index out of bounds")
 }

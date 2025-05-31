@@ -17,7 +17,7 @@ type List[T comparable] struct {
 }
 
 func (lst *List[T]) Append(t T) {
-    if lst.IsEmpty() {
+    if lst.head == nil {
 		newNode := &listNode[T]{
 			val: t,
 		}
@@ -62,7 +62,7 @@ func (lst *List[T]) IndexOf(t T) (int, error) {
 }
 
 func (lst *List[T]) IsEmpty() bool {
-	return lst.Len() == 0
+	return lst.head == nil
 }
 
 func (lst *List[T]) Reverse() {
@@ -86,17 +86,11 @@ func (lst *List[T]) Clear() {
 func (lst *List[T]) ToSlice() []T {
 	slc := []T{}
 
-	empty := lst.IsEmpty()
-
-	fmt.Println(empty)
-	if empty  {
+	if lst.head == nil  {
 		return slc
 	}
 
-
-
 	curr := lst.head
-
 	for curr != nil {
 		slc = append(slc, curr.val)
 		curr = curr.next
@@ -106,16 +100,20 @@ func (lst *List[T]) ToSlice() []T {
 }
 
 func (lst *List[T]) Get(index int) (T, error) {
-	len := lst.Len()
-
 	var t T
 
-	if index < 0 || index > len {
+	if lst.head == nil {
 		return t, fmt.Errorf("index out of bounds")
 	}
 
 	if index == 0 {
 		return lst.head.val, nil
+	}
+
+	len := lst.Len()
+
+	if index < 0 || index > len {
+		return t, fmt.Errorf("index out of bounds")
 	}
 
 	curr := lst.head
@@ -149,6 +147,10 @@ func (lst *List[T]) String() string {
 }
 
 func (lst *List[T]) Len() int {
+	if lst.head == nil {
+		return 0
+	}
+
 	len := 0
 
 	for el := lst.head ; el != nil ; el = el.next {

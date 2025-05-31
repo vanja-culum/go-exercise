@@ -25,3 +25,33 @@ func (t *BST[T]) Find(val T) (T, error) {
 	var value T
 	return value, fmt.Errorf("value not found")
 }
+
+func (t *BST[T]) FindMin() (T, error) {
+	var value T
+	return value, fmt.Errorf("value not found")
+}
+
+func (t *BST[T]) InOrder() (T, error) {
+	var value T
+	return value, fmt.Errorf("value not found")
+}
+
+func (t *BST[T]) PreOrder() (T, error) {
+	var value T
+	return value, fmt.Errorf("value not found")
+}
+
+func (t *BST[T]) PostOrder() (T, error) {
+	var value T
+	return value, fmt.Errorf("value not found")
+}
+
+func (t *BST[T]) Height() int {
+	
+	return 0
+}
+
+
+func (t *BST[T]) LevelOrder() {
+
+}

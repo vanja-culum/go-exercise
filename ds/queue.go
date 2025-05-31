@@ -56,20 +56,25 @@ func (q *Queue[T]) String() string {
 }
 
 func (q *Queue[T]) Dequeue() (T, error) {
-	if q.tail == nil {
+	if q.head == nil {
 		var t T
 		return t, fmt.Errorf("queue empty")
 	}	
 
-	q.tail.prev.next = nil
-	return q.tail.val, nil
+	val := q.head.val
+
+	if q.head.next == nil {
+		q.head = nil
+		q.tail = nil
+	} else {
+		q.head = q.head.next
+		q.head.prev = nil
+	}
+
+	return val, nil
 }
 
 func (q *Queue[T]) Size() int {
-	if q.head == nil {
-		return 0
-	}
-
 	curr := q.head
 	i := 0
 

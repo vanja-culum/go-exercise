@@ -11,23 +11,16 @@ import (
 
 
 func main() {
-	pq := ds.PriorityQueue[int]{}
+	tree := ds.BST[int]{}
 
-	pq.Enqueue(1, 1)
-	pq.Enqueue(2, 2)
-	pq.Enqueue(3, 3)
-
-	pq.Enqueue(1, 1)
-	pq.Enqueue(4, 4)
-	pq.Enqueue(5, 5)
-
-	fmt.Println(pq.String())
-
-
-
-	pq.Dequeue()
-	fmt.Println(pq.String())
-
+	rootNode := tree.Insert(5)
+	rootRight := tree.Insert(10)
+	rootLeft := tree.Insert(2)
+	fmt.Println(tree.StringRoot())
+	fmt.Println("n1", rootNode)
+	fmt.Println("n2", rootRight)
+	fmt.Println("n3", rootLeft)
+	fmt.Println(tree.String())
     // http.HandleFunc("/hello", helloHandler)
     // http.HandleFunc("/headers", headersHandler)
 

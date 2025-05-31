@@ -96,3 +96,18 @@ func (s *Stack[T]) IsEmpty() bool {
 func (s *Stack[T]) Clear() {
 	s.base = nil
 }
+
+func (s *Stack[T]) Size() int {
+	if s.base == nil {
+		return 0
+	}
+
+	i := 0
+	curr := s.base
+	for curr != nil {
+		i++
+		curr = curr.next
+	}
+
+	return i
+}

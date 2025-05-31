@@ -32,32 +32,23 @@ func (pq *PriorityQueue[T]) Enqueue(val T, priority int) {
 
 	for curr := pq.head; curr != nil; curr = curr.next {
 		if priority > curr.priority {
-			curr.prev = newNode
+			newNode.prev = curr.prev
 			newNode.next = curr
-			if curr == pq.head {
+
+			if curr.prev != nil {
+				curr.prev.next = newNode
+			} else {
 				pq.head = newNode
 			}
-			return
-		}
-
-		if curr.next == nil {
-			curr.next = newNode
-			newNode.prev = curr
-			pq.tail = newNode
-			return
-		}
-
-		if curr.priority == priority && curr.next.priority < priority {
-			tmpNext := curr.next
-			curr.next = newNode
-			newNode.prev = curr
-			newNode.next = tmpNext
-			if curr == pq.tail {
-				pq.tail = newNode
-			}
+			
+			curr.prev = newNode
 			return
 		}
 	}
+
+	pq.tail.next = newNode
+	newNode.prev = pq.tail
+	pq.tail = newNode
 }
 
 func (pq *PriorityQueue[T]) String() string {

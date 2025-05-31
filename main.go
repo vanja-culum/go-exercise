@@ -19,6 +19,7 @@ func main() {
 
 	pq.Enqueue(1, 1)
 	pq.Enqueue(4, 4)
+	pq.Enqueue(5, 5)
 
 	fmt.Println(pq.String())
 

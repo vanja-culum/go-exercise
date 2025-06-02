@@ -8,7 +8,6 @@ import (
 type queueNode[T any] struct {
 	val T
 	next *queueNode[T]
-	prev *queueNode[T]
 }
 
 type Queue[T any] struct {
@@ -21,14 +20,12 @@ func (q *Queue[T]) Enqueue(t T) {
 		val: t,
 	}
 
-	if q.head == nil || q.tail == nil {
+	if q.head == nil {
 		q.head = newNode
 		q.tail = newNode
-
 		return
 	}
 
-	newNode.prev = q.tail
 	q.tail.next = newNode
 	q.tail = newNode
 }
@@ -37,11 +34,6 @@ func (q *Queue[T]) String() string {
 	var sb strings.Builder
 
 	sb.WriteString("[")
-
-	if q.head == nil {
-		sb.WriteString("]")
-		return sb.String()
-	}
 
 	for curr := q.head ; curr != nil ; curr = curr.next {
 		sb.WriteString(fmt.Sprintf("%v", curr.val))
@@ -55,6 +47,11 @@ func (q *Queue[T]) String() string {
 	return sb.String()
 }
 
+func (q *Queue[T]) Clear() {
+	q.head = nil
+	q.tail = nil
+}
+
 func (q *Queue[T]) Dequeue() (T, error) {
 	if q.head == nil {
 		var t T
@@ -62,13 +59,10 @@ func (q *Queue[T]) Dequeue() (T, error) {
 	}	
 
 	val := q.head.val
+	q.head = q.head.next
 
-	if q.head.next == nil {
-		q.head = nil
+	if q.head == nil {
 		q.tail = nil
-	} else {
-		q.head = q.head.next
-		q.head.prev = nil
 	}
 
 	return val, nil

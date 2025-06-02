@@ -53,15 +53,41 @@ func (t *BST[T]) StringRoot() string {
 	return fmt.Sprintf("root: %v\nright: %v\nleft: %v\n", t.root, t.root.right, t.root.left)
 }
 
+func (t *BST[T]) remove(node *bstNode[T], val T) error {
+	if node == nil {
+		return fmt.Errorf("node doesn't exist")
+	}
 
-func (t *BST[T]) Remove(val T) bool {
-	return false
+	if node.val == val {
+		
+		return nil
+	}
+
+	return nil
 }
 
-func (t *BST[T]) Find(val T) (T, error) {
-	
-	var value T
-	return value, fmt.Errorf("value not found")
+func (t *BST[T]) Remove(val T) error {
+	return t.remove(t.root, val)
+}
+
+func (t *BST[T]) find(node *bstNode[T], val T) (*bstNode[T], error) {
+	if node == nil {
+		return nil, fmt.Errorf("node not found")
+	}
+
+	if node.val == val {
+		return node, nil
+	}
+
+	if node.val > val {
+		return t.find(node.left, val)
+	}
+
+	return t.find(node.right, val)
+}
+
+func (t *BST[T]) Find(val T) (*bstNode[T], error) {
+	return t.find(t.root, val)
 }
 
 func (t *BST[T]) FindMin() (T, error) {

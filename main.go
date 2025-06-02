@@ -21,6 +21,13 @@ func main() {
 	fmt.Println("n2", rootRight)
 	fmt.Println("n3", rootLeft)
 	fmt.Println(tree.String())
+
+	n1, err := tree.Find(10)
+	if err != nil {
+		fmt.Println("err", err)	
+	}
+	
+	fmt.Println("n1", n1)
     // http.HandleFunc("/hello", helloHandler)
     // http.HandleFunc("/headers", headersHandler)
 

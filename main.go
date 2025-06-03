@@ -6,26 +6,24 @@ import (
 )
 
 func main() {
-	s := ds.Stack[int]{}
-	q := ds.Queue[int]{}
-	s.Push(12)
-	s.Push(14)
-	s.Push(16)
+	t := ds.BST[int]{}
 
-	q.Enqueue(5)
-	q.Enqueue(10)
-	q.Enqueue(15)
-	fmt.Println(s.String())
+	t.Insert(20)
+	t.Insert(10)
+	t.Insert(7)
+	t.Insert(12)
+	t.Insert(30)
+	t.Insert(25)
+	t.Insert(40)
 
-	fmt.Println(q.String())
+	arr1 := t.InOrder()
+	arr2 := t.PreOrder()
+	arr3 := t.PostOrder()
+	fmt.Println("arr1", arr1)
+	fmt.Println("arr2", arr2)
+	fmt.Println("arr3", arr3)
+	arr4 := t.BFS()
 
-	s.Pop()
-	s.Pop()
-	s.Pop()
-	s.Pop()
-	fmt.Println(s.String())
-	q.Dequeue()
-	q.Dequeue()
+	fmt.Println("arr4", arr4)
 
-fmt.Println(q.String())
 }

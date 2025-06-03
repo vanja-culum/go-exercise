@@ -27,10 +27,8 @@ func (t *BST[T]) insertNode(node *bstNode[T], val T) *bstNode[T] {
 
 	if node.val < val {
 		node.right = t.insertNode(node.right, val)
-		return node
 	} else if node.val > val {
 		node.left = t.insertNode(node.left, val)
-		return node
 	}
 
 	 return node
@@ -95,19 +93,98 @@ func (t *BST[T]) FindMin() (T, error) {
 	return value, fmt.Errorf("value not found")
 }
 
-func (t *BST[T]) InOrder() (T, error) {
-	var value T
-	return value, fmt.Errorf("value not found")
+func (t *BST[T]) inOrder(node *bstNode[T]) []T {
+	arr := []T{}
+
+	if node == nil {
+		return arr
+	}
+
+	if node.left != nil {
+		arr = append(arr, t.inOrder(node.left)...)
+	}
+
+	arr = append(arr, node.val)
+
+	if node.right != nil {
+		arr = append(arr, t.inOrder(node.right)...)
+	}
+	
+	return arr
 }
 
-func (t *BST[T]) PreOrder() (T, error) {
-	var value T
-	return value, fmt.Errorf("value not found")
+func (t *BST[T]) InOrder() []T {
+	return t.inOrder(t.root)
 }
 
-func (t *BST[T]) PostOrder() (T, error) {
-	var value T
-	return value, fmt.Errorf("value not found")
+func (t *BST[T]) preOrder(node *bstNode[T]) []T {
+	arr := []T{}
+	if node == nil {
+		return arr
+	}
+
+	arr = append(arr, node.val)
+
+	if node.left != nil {
+		arr = append(arr, t.preOrder(node.left)...)
+	}
+
+	if node.right != nil {
+		arr = append(arr, t.preOrder(node.right)...)
+	}
+
+	return arr
+}
+
+func (t *BST[T]) PreOrder() []T {
+	return t.preOrder(t.root)
+}
+
+func (t *BST[T]) postOrder(node *bstNode[T]) []T {
+	arr := []T{}
+	if node == nil {
+		return arr
+	}
+
+	if node.left != nil {
+		arr = append(arr, t.postOrder(node.left)...)
+	}
+
+	if node.right != nil {
+		arr = append(arr, t.postOrder(node.right)...)
+	}
+
+	arr = append(arr, node.val)
+
+	return arr
+}
+
+func (t *BST[T]) PostOrder() []T {
+	return t.postOrder(t.root)
+}
+
+func (t *BST[T]) BFS()  []T {
+	q := Queue[*bstNode[T]]{}
+	arr := []T{}
+	q.Enqueue(t.root)
+	for q.Size() > 0 {
+		node, err := q.Dequeue()
+		if err != nil {
+			continue
+		}
+
+		arr = append(arr, node.val)
+		if node.left != nil {
+			q.Enqueue(node.left)
+		}
+
+		if node.right != nil {
+			q.Enqueue(node.right)
+		}
+	}
+
+	return arr
+
 }
 
 func (t *BST[T]) Height() int {
@@ -115,7 +192,3 @@ func (t *BST[T]) Height() int {
 	return 0
 }
 
-
-func (t *BST[T]) LevelOrder() {
-
-}

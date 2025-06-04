@@ -355,14 +355,26 @@ func (t *BST[T]) Max() (T, error) {
 	return node.val, nil
 }
 
-func (t *BST[T]) Height() int {
-	if t.root == nil {
+func (t *BST[T]) height(node *bstNode[T]) int {
+	if node == nil {
 		return 0
 	}
 
+	leftHeight := t.height(node.left)
+	rightHeight := t.height(node.right)
 
+	if leftHeight > rightHeight {
+		return leftHeight + 1 
+	}
 
+	return rightHeight + 1
+}
 
-	return 0
+func (t *BST[T]) Height() int {
+	if t.root == nil {
+		return -1
+	}
+
+	return t.height(t.root)
 }
 

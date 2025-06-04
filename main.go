@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"go-exercise/ds"
 )
 
@@ -19,6 +20,8 @@ func main() {
 	t.Insert(11)
 	t.Insert(15)
 
-	t.Remove(40)
+	maxH := t.Height()
+
+	fmt.Println(maxH)
 
 }

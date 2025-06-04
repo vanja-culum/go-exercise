@@ -174,8 +174,10 @@ func (t *BST[T]) Remove(val T) error {
 			fmt.Println("minParent", minParent)
 			fmt.Println("curr", curr)
 
-			// unlink parent of largest smaller node
-			minParent.right = nil
+			// unlink parent of largest smaller node if it's not the node itself
+			if minParent != node {
+				minParent.right = nil
+			}
 
 			// set left of largest to the node
 			if node.left != curr {

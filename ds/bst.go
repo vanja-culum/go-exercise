@@ -44,55 +44,8 @@ func (t *BST[T]) Insert(val T) *bstNode[T] {
 }
 
 func (t *BST[T]) String() string {
-	return fmt.Sprintf("root: %v\n", t.root)
+	return fmt.Sprintf("tree: %v\n", t.InOrder())
 }
-
-func (t *BST[T]) StringRoot() string {
-	return fmt.Sprintf("root: %v\nright: %v\nleft: %v\n", t.root, t.root.right, t.root.left)
-}
-
-func (t *BST[T]) remove(node *bstNode[T], val T) error {
-	if node == nil {
-		return fmt.Errorf("node doesn't exist")
-	}
-
-	if node.val == val {
-		if node.left == nil && node.right == nil {
-			// leaf node
-			node = nil
-		}
-
-		return nil
-	}
-
-	// should be left
-	if node.val > val {
-		if node.left == nil {
-			return fmt.Errorf("node not found, tree irregular to left")
-		}
-
-		return t.remove(node.left, val)
-	}
-
-	// should be right
-	if node.right == nil {
-			return fmt.Errorf("node not found, tree irregular to right")
-	}
-
-	return t.remove(node.right, val)
-
-}
-
-type Direction int
-
-// const (
-// 	Left iota
-// 	Right
-// )
-
-// func (t *BST[T]) removeParentLink(node *bstNode[T], dir Direction) {
-
-// }
 
 func (t *BST[T]) Remove(val T) error {
 	if t.root == nil {
@@ -170,8 +123,12 @@ func (t *BST[T]) Remove(val T) error {
 			}
 
 			// unlink parent of largest smaller node if it's not the node itself
+			// if minParent != node {
+			// 	minParent.right = nil
+			// }
+
 			if minParent != node {
-				minParent.right = nil
+				minParent.right = curr.left
 			}
 
 			// set left of largest to the node

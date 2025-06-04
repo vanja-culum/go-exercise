@@ -57,8 +57,6 @@ func (t *BST[T]) remove(node *bstNode[T], val T) error {
 	}
 
 	if node.val == val {
-		fmt.Println("found")	
-		
 		if node.left == nil && node.right == nil {
 			// leaf node
 			node = nil
@@ -171,9 +169,6 @@ func (t *BST[T]) Remove(val T) error {
 				minParent = tmpCurr
 			}
 
-			fmt.Println("minParent", minParent)
-			fmt.Println("curr", curr)
-
 			// unlink parent of largest smaller node if it's not the node itself
 			if minParent != node {
 				minParent.right = nil
@@ -210,7 +205,7 @@ func (t *BST[T]) Remove(val T) error {
 		parent = tmpNode
 	}
 
-	return fmt.Errorf("node not found end")
+	return fmt.Errorf("node not found")
 }
 
 func (t *BST[T]) find(node *bstNode[T], val T) (*bstNode[T], error) {

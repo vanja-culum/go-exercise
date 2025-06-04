@@ -57,15 +57,158 @@ func (t *BST[T]) remove(node *bstNode[T], val T) error {
 	}
 
 	if node.val == val {
+		fmt.Println("found")	
 		
+		if node.left == nil && node.right == nil {
+			// leaf node
+			node = nil
+		}
+
 		return nil
 	}
 
-	return nil
+	// should be left
+	if node.val > val {
+		if node.left == nil {
+			return fmt.Errorf("node not found, tree irregular to left")
+		}
+
+		return t.remove(node.left, val)
+	}
+
+	// should be right
+	if node.right == nil {
+			return fmt.Errorf("node not found, tree irregular to right")
+	}
+
+	return t.remove(node.right, val)
+
 }
 
+type Direction int
+
+// const (
+// 	Left iota
+// 	Right
+// )
+
+// func (t *BST[T]) removeParentLink(node *bstNode[T], dir Direction) {
+
+// }
+
 func (t *BST[T]) Remove(val T) error {
-	return t.remove(t.root, val)
+	if t.root == nil {
+		return fmt.Errorf("tree empty")
+	}
+
+	if t.root.val == val {
+		t.root = nil
+		return nil
+	}
+
+	parent := t.root
+	var node *bstNode[T]
+	var tmpNode *bstNode[T]
+	var dir string
+	if t.root.val > val {
+		node = t.root.left
+		dir = "left"
+	} else {
+		node = t.root.right
+		dir = "right"
+	}
+
+	if node == nil {
+		return fmt.Errorf("node not found from start")
+	}
+
+	for node != nil {
+		tmpNode = node
+		// found it
+		if node.val == val {
+			// no children nodes
+			if node.left == nil && node.right == nil {
+				if dir == "left" {
+					parent.left = nil
+				} else {
+					parent.right = nil
+				}
+
+				node = nil
+				return nil
+			}
+
+			// only left node
+			if node.left != nil && node.right == nil {
+				if dir == "left" {
+					parent.left = node.left
+				} else {
+					parent.right = node.left
+				}
+
+				node = nil
+				return nil
+			}
+
+			// only right node
+			if node.left == nil && node.right != nil {
+				if dir == "left" {
+					parent.left = node.right
+				} else {
+					parent.right = node.right
+				}
+
+				node = nil
+				return nil
+			}
+
+			// has both child nodes, replace with largest smaller node
+			minParent := node
+			curr := node.left
+			for curr.right != nil {
+				tmpCurr := curr
+				curr = curr.right
+				minParent = tmpCurr
+			}
+
+			fmt.Println("minParent", minParent)
+			fmt.Println("curr", curr)
+
+			// unlink parent of largest smaller node
+			minParent.right = nil
+
+			// set left of largest to the node
+			if node.left != curr {
+				curr.left = node.left
+			}
+
+			// set right of largest to the node
+			curr.right = node.right
+
+			// set node to current
+			node = curr
+
+			if dir == "left" {
+				parent.left = node
+			} else {
+				parent.right = node
+			}
+
+
+			return nil
+		} else if node.val > val {
+			// to left
+			node = node.left
+			dir = "left"
+		} else {
+			node = node.right
+			dir = "right"
+		}
+
+		parent = tmpNode
+	}
+
+	return fmt.Errorf("node not found end")
 }
 
 func (t *BST[T]) find(node *bstNode[T], val T) (*bstNode[T], error) {
@@ -184,11 +327,45 @@ func (t *BST[T]) BFS()  []T {
 	}
 
 	return arr
+}
 
+func (t *BST[T]) Min() (T, error) {
+	if t.root == nil {
+		var val T
+		return val, fmt.Errorf("tree empty")
+	}
+
+	node := t.root
+
+	for node.left != nil {
+		node = node.left
+	}
+
+	return node.val, nil
+}
+
+func (t *BST[T]) Max() (T, error) {
+	if t.root == nil {
+		var val T
+		return val, fmt.Errorf("tree empty")
+	}
+
+	node := t.root
+	for node.right != nil {
+		node = node.right
+	}
+
+	return node.val, nil
 }
 
 func (t *BST[T]) Height() int {
-	
+	if t.root == nil {
+		return 0
+	}
+
+
+
+
 	return 0
 }
 

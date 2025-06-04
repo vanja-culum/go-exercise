@@ -16,14 +16,16 @@ func main() {
 	t.Insert(25)
 	t.Insert(40)
 
+	t.Insert(2)
+	t.Insert(8)
+	t.Insert(11)
+	t.Insert(15)
+
+	err5 := t.Remove(40)
+
+	fmt.Println(err5)
+
 	arr1 := t.InOrder()
-	arr2 := t.PreOrder()
-	arr3 := t.PostOrder()
-	fmt.Println("arr1", arr1)
-	fmt.Println("arr2", arr2)
-	fmt.Println("arr3", arr3)
-	arr4 := t.BFS()
 
-	fmt.Println("arr4", arr4)
-
+	fmt.Println(arr1)
 }

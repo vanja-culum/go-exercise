@@ -16,10 +16,10 @@ func main() {
 	codeHandler := handler.NewCodeHandler()
 
 	r.Use(middleware.Logger)
- 
+
 	r.Get("/", rootHandler.HandleGetRoot)
 
 	r.Get("/dsa", codeHandler.HandleGetDSAFiles)
 
-	http.ListenAndServe(":3000", r)
+	http.ListenAndServe(":8080", r)
 }

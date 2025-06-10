@@ -2,16 +2,17 @@ package handler
 
 import (
 	"go-exercise/helper"
+	"math/rand"
 	"net/http"
 	"os"
 	"path/filepath"
 	"sync"
 )
 
-type CodeHandler struct{}
+type DsaHandler struct{}
 
-func NewCodeHandler() CodeHandler {
-	return CodeHandler{}
+func NewDsaHandler() DsaHandler {
+	return DsaHandler{}
 }
 
 type FileDetails struct {
@@ -20,7 +21,7 @@ type FileDetails struct {
 	Label    string
 }
 
-func (h CodeHandler) HandleGetDSAFiles(w http.ResponseWriter, r *http.Request) {
+func (h DsaHandler) HandleGetDSAFiles(w http.ResponseWriter, r *http.Request) {
 	path, _ := os.Getwd()
 
 	bst := FileDetails{
@@ -72,5 +73,63 @@ func (h CodeHandler) HandleGetDSAFiles(w http.ResponseWriter, r *http.Request) {
 	wg.Wait()
 
 	helper.Render(w, r, http.StatusOK, results)
+
+}
+
+type BstGenerate struct {
+	NodeCount int `json:"nodeCount" validate:"required,min=3,max=50"`
+}
+
+type BstGenerateTreeNode struct {
+	Value int                  `json:"value"`
+	Left  *BstGenerateTreeNode `json:"left,omitempty"`
+	Right *BstGenerateTreeNode `json:"right,omitempty"`
+}
+
+type BstGenerateResponse struct {
+	root *BstGenerateTreeNode `json:"tree"`
+}
+
+func (h DsaHandler) HandlePostBstGenerate(w http.ResponseWriter, r *http.Request) {
+
+	body, err := helper.Bind[BstGenerate](r)
+	if err != nil {
+		helper.ErrInvalidRequest(err, w, r)
+		return
+	}
+
+	bstTree := &BstGenerateResponse{}
+
+	insertLeftOrRight(bstTree.root, rand.Intn(body.NodeCount), body.NodeCount, 0)
+
+	helper.Render(w, r, http.StatusOK, bstTree)
+}
+
+func insertLeftOrRight(node *BstGenerateTreeNode, value, nodeCount, count int) *BstGenerateTreeNode {
+	if count == nodeCount {
+		return node
+	}
+
+	if node == nil {
+		node = &BstGenerateTreeNode{
+			Value: value,
+		}
+
+		count++
+
+		if count == nodeCount {
+			return node
+		}
+	}
+
+	shouldInsertLeft := rand.Intn(2) == 0
+
+	if shouldInsertLeft {
+		node.Left = insertLeftOrRight(node.Left, value, nodeCount, count)
+	} else {
+		node.Right = insertLeftOrRight(node.Right, value, nodeCount, count)
+	}
+
+	return node
 
 }

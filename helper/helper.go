@@ -8,27 +8,27 @@ import (
 )
 
 type FileResult struct {
-	Filename string
-	Content string
-	Error error
+	Filename string "json:\"filename\""
+	Content  string "json:\"content,omitempty\""
+	Error    error  "json:\"error,omitempty\""
+	Label    string "json:\"label,omitempty\""
 }
 
-func ReadFile(filename string, wg *sync.WaitGroup, mu *sync.Mutex, results *[]FileResult) FileResult {
+func ReadFile(path string, filename string, label string, wg *sync.WaitGroup, mu *sync.Mutex, results *[]FileResult) FileResult {
 	defer wg.Done()
 
 	res := FileResult{
 		Filename: filename,
+		Label:    label,
 	}
 
-	f, err := os.Open(filename)
-
+	f, err := os.Open(path)
 	if err != nil {
 		res.Error = fmt.Errorf("error reading file: %v", filename)
 		return res
 	}
 
 	defer f.Close()
-
 
 	content, err := io.ReadAll(f)
 
@@ -39,7 +39,7 @@ func ReadFile(filename string, wg *sync.WaitGroup, mu *sync.Mutex, results *[]Fi
 
 	res.Content = string(content)
 	mu.Lock()
-	*results = append(*results, res) 
+	*results = append(*results, res)
 	mu.Unlock()
 	return res
 }

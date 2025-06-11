@@ -9,7 +9,7 @@ type ComparableSortable interface {
 }
 
 type bstNode[T ComparableSortable] struct {
-	val T
+	Val T
 	left *bstNode[T]
 	right *bstNode[T]
 }
@@ -18,16 +18,21 @@ type BST[T ComparableSortable] struct {
 	root *bstNode[T]
 }
 
+type BSTNodeCoords struct {
+	X int 
+	Y int
+}
+
 func (t *BST[T]) insertNode(node *bstNode[T], val T) *bstNode[T] {
 	if node == nil {
 		return &bstNode[T]{
-			val: val,
+			Val: val,
 		}
 	}
 
-	if node.val < val {
+	if node.Val < val {
 		node.right = t.insertNode(node.right, val)
-	} else if node.val > val {
+	} else if node.Val > val {
 		node.left = t.insertNode(node.left, val)
 	}
 
@@ -52,7 +57,7 @@ func (t *BST[T]) Remove(val T) error {
 		return fmt.Errorf("tree empty")
 	}
 
-	if t.root.val == val {
+	if t.root.Val == val {
 		t.root = nil
 		return nil
 	}
@@ -61,7 +66,7 @@ func (t *BST[T]) Remove(val T) error {
 	var node *bstNode[T]
 	var tmpNode *bstNode[T]
 	var dir string
-	if t.root.val > val {
+	if t.root.Val > val {
 		node = t.root.left
 		dir = "left"
 	} else {
@@ -76,7 +81,7 @@ func (t *BST[T]) Remove(val T) error {
 	for node != nil {
 		tmpNode = node
 		// found it
-		if node.val == val {
+		if node.Val == val {
 			// no children nodes
 			if node.left == nil && node.right == nil {
 				if dir == "left" {
@@ -150,7 +155,7 @@ func (t *BST[T]) Remove(val T) error {
 
 
 			return nil
-		} else if node.val > val {
+		} else if node.Val > val {
 			// to left
 			node = node.left
 			dir = "left"
@@ -170,11 +175,11 @@ func (t *BST[T]) find(node *bstNode[T], val T) (*bstNode[T], error) {
 		return nil, fmt.Errorf("node not found")
 	}
 
-	if node.val == val {
+	if node.Val == val {
 		return node, nil
 	}
 
-	if node.val > val {
+	if node.Val > val {
 		return t.find(node.left, val)
 	}
 
@@ -190,6 +195,54 @@ func (t *BST[T]) FindMin() (T, error) {
 	return value, fmt.Errorf("value not found")
 }
 
+
+func (t *BST[T]) findLevel(node *bstNode[T], val T, level int) (int, error) {
+	if node == nil {
+		return -1, fmt.Errorf("value not found")
+	}
+
+	if node.Val == val {
+		return level, nil
+	}
+
+	if node.Val > val {
+		return t.findLevel(node.left, val, level+1)
+	}
+
+	return t.findLevel(node.right, val, level+1)
+}
+
+func (t *BST[T]) FindLevel(val T) (int, error) {
+	return t.findLevel(t.root, val, 0)
+}
+
+func (t *BST[T]) generateCoords(node *bstNode[T], coords *BSTNodeCoords, val T) (*BSTNodeCoords, error) {
+	if node == nil {
+		return nil, fmt.Errorf("cannot generate coords, node not found")
+	}
+
+	if node.Val == val {
+		return coords, nil
+	}
+
+	if node.Val > val {
+		coords.X -= 100
+		coords.Y += 100
+		return t.generateCoords(node.left, coords, val)
+	}
+
+	return t.generateCoords(node.right, coords, val)
+}
+
+func (t *BST[T]) GenerateCoords(val T) (*BSTNodeCoords, error) {
+	coords := &BSTNodeCoords{
+		X: 0,
+		Y: 0,
+	}
+
+	return t.generateCoords(t.root, coords, val)
+}
+
 func (t *BST[T]) inOrder(node *bstNode[T]) []T {
 	arr := []T{}
 
@@ -201,7 +254,7 @@ func (t *BST[T]) inOrder(node *bstNode[T]) []T {
 		arr = append(arr, t.inOrder(node.left)...)
 	}
 
-	arr = append(arr, node.val)
+	arr = append(arr, node.Val)
 
 	if node.right != nil {
 		arr = append(arr, t.inOrder(node.right)...)
@@ -214,13 +267,104 @@ func (t *BST[T]) InOrder() []T {
 	return t.inOrder(t.root)
 }
 
+func (t *BST[T]) inOrderNode(node *bstNode[T]) []*bstNode[T] {
+	arr := []*bstNode[T]{}
+
+	if node == nil {
+		return arr
+	}
+
+	if node.left != nil {
+		arr = append(arr, t.inOrderNode(node.left)...)
+	}
+
+	arr = append(arr, node)
+
+	if node.right != nil {
+		arr = append(arr, t.inOrderNode(node.right)...)
+	}
+	
+	return arr
+}
+
+func (t *BST[T]) InOrderNode() []*bstNode[T] {
+	return 	t.inOrderNode(t.root)
+}
+
+func (t *BST[T]) findParentNode(node *bstNode[T], val T) (*bstNode[T], error) {
+	if node == nil {
+		return nil, fmt.Errorf("node not found")
+	}
+
+	if node.Val == val {
+		return node, nil
+	}
+
+	if node.Val > val {
+		return t.findParentNode(node.left, val)
+	}
+
+	return t.findParentNode(node.right, val)
+}
+
+func (t *BST[T]) FindParentNode(val T) (*bstNode[T], error) {
+	if t.root == nil {
+		return nil, nil
+	}
+
+	return 	t.findParentNode(t.root, val)
+}
+
+type NodeLink[T ComparableSortable] struct {
+	Parent *bstNode[T]
+	Child *bstNode[T]
+}
+
+func (t *BST[T]) generateLinks(links *[]NodeLink[T], parent, child *bstNode[T]) []NodeLink[T] {
+	if child == nil {
+		return *links
+	}
+
+	if child.left != nil {
+		nodeLink := NodeLink[T]{
+			Parent: parent,
+			Child: child.left,
+		}
+
+		*links	= append(*links, nodeLink)
+	}
+
+	if child.right != nil {
+		nodeLink := NodeLink[T]{
+			Parent: parent,
+			Child: child.right,
+		}
+
+		*links	= append(*links, nodeLink)
+	}
+
+	t.generateLinks(links, child, child.left)
+	t.generateLinks(links, child, child.right)
+
+	return *links
+}
+
+func (t *BST[T]) GenerateLinks() []NodeLink[T] {
+	links := []NodeLink[T]{}
+	if t.root == nil {
+		return links
+	}
+
+	return t.generateLinks(&links, nil, t.root)
+}
+
 func (t *BST[T]) preOrder(node *bstNode[T]) []T {
 	arr := []T{}
 	if node == nil {
 		return arr
 	}
 
-	arr = append(arr, node.val)
+	arr = append(arr, node.Val)
 
 	if node.left != nil {
 		arr = append(arr, t.preOrder(node.left)...)
@@ -251,7 +395,7 @@ func (t *BST[T]) postOrder(node *bstNode[T]) []T {
 		arr = append(arr, t.postOrder(node.right)...)
 	}
 
-	arr = append(arr, node.val)
+	arr = append(arr, node.Val)
 
 	return arr
 }
@@ -270,7 +414,7 @@ func (t *BST[T]) BFS()  []T {
 			continue
 		}
 
-		arr = append(arr, node.val)
+		arr = append(arr, node.Val)
 		if node.left != nil {
 			q.Enqueue(node.left)
 		}
@@ -295,7 +439,7 @@ func (t *BST[T]) Min() (T, error) {
 		node = node.left
 	}
 
-	return node.val, nil
+	return node.Val, nil
 }
 
 func (t *BST[T]) Max() (T, error) {
@@ -309,7 +453,7 @@ func (t *BST[T]) Max() (T, error) {
 		node = node.right
 	}
 
-	return node.val, nil
+	return node.Val, nil
 }
 
 func (t *BST[T]) height(node *bstNode[T]) int {

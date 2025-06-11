@@ -1,12 +1,17 @@
 package handler
 
 import (
+	"fmt"
+	"go-exercise/ds"
 	"go-exercise/helper"
 	"math/rand"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"sync"
+
+	"github.com/google/uuid"
 )
 
 type DsaHandler struct{}
@@ -86,50 +91,125 @@ type BstGenerateTreeNode struct {
 	Right *BstGenerateTreeNode `json:"right,omitempty"`
 }
 
+type BstEdge struct {
+	Id string `json:"id"`
+	Source string `json:"source"`
+	Target string `json:"target"`
+}
+
+type BstNodeData struct {
+	Label string `json:"label"`
+}
+
+type BstNodePosition struct {
+	X int `json:"x"`
+	Y int `json:"y"`
+}
+
+type BstNode struct {
+	Id string `json:"id"`
+	Data BstNodeData `json:"data"`
+	Position BstNodePosition `json:"position"`
+}
+
 type BstGenerateResponse struct {
-	root *BstGenerateTreeNode `json:"tree"`
+	Nodes []BstNode `json:"nodes"`
+	Edges []BstEdge `json:"edges"`
 }
 
 func (h DsaHandler) HandlePostBstGenerate(w http.ResponseWriter, r *http.Request) {
-
+	fmt.Println("generating....")
 	body, err := helper.Bind[BstGenerate](r)
 	if err != nil {
 		helper.ErrInvalidRequest(err, w, r)
 		return
 	}
 
-	bstTree := &BstGenerateResponse{}
+	respTree := &BstGenerateResponse{}
 
-	insertLeftOrRight(bstTree.root, rand.Intn(body.NodeCount), body.NodeCount, 0)
+	t := ds.BST[int]{}
 
-	helper.Render(w, r, http.StatusOK, bstTree)
-}
+	count := 0	
 
-func insertLeftOrRight(node *BstGenerateTreeNode, value, nodeCount, count int) *BstGenerateTreeNode {
-	if count == nodeCount {
-		return node
-	}
+	for count < body.NodeCount {
+		randVal := rand.Intn(body.NodeCount * 10)
+		_, err := t.Find(randVal)
 
-	if node == nil {
-		node = &BstGenerateTreeNode{
-			Value: value,
-		}
-
-		count++
-
-		if count == nodeCount {
-			return node
+		fmt.Println("randVal, err", randVal, err)
+		if err != nil {
+			t.Insert(randVal)
+			count++
 		}
 	}
 
-	shouldInsertLeft := rand.Intn(2) == 0
+	fmt.Println("1")
 
-	if shouldInsertLeft {
-		node.Left = insertLeftOrRight(node.Left, value, nodeCount, count)
-	} else {
-		node.Right = insertLeftOrRight(node.Right, value, nodeCount, count)
+	for _, node := range t.InOrderNode() {
+		position, _ := t.GenerateCoords(node.Val)
+		source := uuid.NewString()
+
+		node := BstNode{
+			Position: BstNodePosition{
+				X: position.X,
+				Y: position.Y,
+			},
+			Id: source,
+			Data: BstNodeData{
+				Label: strconv.Itoa(node.Val),
+			},
+		}
+
+		respTree.Nodes = append(respTree.Nodes, node)
 	}
 
-	return node
+	fmt.Println("2")
 
+	links := t.GenerateLinks()
+
+	fmt.Println("3")
+	for _, link := range links {
+		edge := BstEdge{
+			Id: uuid.NewString(),
+		}
+
+		if link.Parent != nil {
+			for _, respNode := range respTree.Nodes {
+				if respNode.Data.Label == strconv.Itoa(link.Child.Val) {
+					edge.Source = respNode.Id
+				}
+
+				if respNode.Data.Label == strconv.Itoa(link.Parent.Val) {
+					edge.Target = respNode.Id
+				}
+			}
+
+			respTree.Edges = append(respTree.Edges, edge)
+		} else {
+			// these are root links
+			edge.Source = respTree.Nodes[0].Id
+			
+			for _, respNode := range respTree.Nodes {
+				if respNode.Data.Label == strconv.Itoa(link.Child.Val) {
+					edge.Target = respNode.Id
+					break
+				}
+			}
+
+			respTree.Edges = append(respTree.Edges, edge)
+		}
+		
+	}
+
+	fmt.Println("in")
+
+	fmt.Println("respTree", respTree)
+
+	for _, node := range respTree.Nodes {
+		fmt.Println("node", node)
+	}
+
+	for _, edge := range respTree.Edges {
+		fmt.Println("edge", edge)
+	}
+	helper.Render(w, r, http.StatusOK, respTree)
 }

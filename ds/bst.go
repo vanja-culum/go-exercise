@@ -5,12 +5,12 @@ import (
 )
 
 type ComparableSortable interface {
-		~int | ~float64 | ~string
+	~int | ~float64 | ~string
 }
 
 type bstNode[T ComparableSortable] struct {
-	Val T
-	left *bstNode[T]
+	Val   T
+	left  *bstNode[T]
 	right *bstNode[T]
 }
 
@@ -19,7 +19,7 @@ type BST[T ComparableSortable] struct {
 }
 
 type BSTNodeCoords struct {
-	X int 
+	X int
 	Y int
 }
 
@@ -36,7 +36,7 @@ func (t *BST[T]) insertNode(node *bstNode[T], val T) *bstNode[T] {
 		node.left = t.insertNode(node.left, val)
 	}
 
-	 return node
+	return node
 }
 
 func (t *BST[T]) Insert(val T) *bstNode[T] {
@@ -153,7 +153,6 @@ func (t *BST[T]) Remove(val T) error {
 				parent.right = node
 			}
 
-
 			return nil
 		} else if node.Val > val {
 			// to left
@@ -195,7 +194,6 @@ func (t *BST[T]) FindMin() (T, error) {
 	return value, fmt.Errorf("value not found")
 }
 
-
 func (t *BST[T]) findLevel(node *bstNode[T], val T, level int) (int, error) {
 	if node == nil {
 		return -1, fmt.Errorf("value not found")
@@ -216,7 +214,12 @@ func (t *BST[T]) FindLevel(val T) (int, error) {
 	return t.findLevel(t.root, val, 0)
 }
 
-func (t *BST[T]) generateCoords(node *bstNode[T], coords *BSTNodeCoords, val T) (*BSTNodeCoords, error) {
+const (
+	OFFSET_X = 100
+	OFFSET_Y = 100
+)
+
+func (t *BST[T]) generateCoords(node *bstNode[T], coords *BSTNodeCoords, val T, level int) (*BSTNodeCoords, error) {
 	if node == nil {
 		return nil, fmt.Errorf("cannot generate coords, node not found")
 	}
@@ -226,12 +229,15 @@ func (t *BST[T]) generateCoords(node *bstNode[T], coords *BSTNodeCoords, val T) 
 	}
 
 	if node.Val > val {
-		coords.X -= 100
-		coords.Y += 100
-		return t.generateCoords(node.left, coords, val)
+		coords.X -= OFFSET_X * (level + 1)
+		coords.Y += OFFSET_Y
+		return t.generateCoords(node.left, coords, val, level+1)
 	}
 
-	return t.generateCoords(node.right, coords, val)
+	coords.X += OFFSET_X * (level + 1)
+	coords.Y += OFFSET_Y
+
+	return t.generateCoords(node.right, coords, val, level+1)
 }
 
 func (t *BST[T]) GenerateCoords(val T) (*BSTNodeCoords, error) {
@@ -240,7 +246,7 @@ func (t *BST[T]) GenerateCoords(val T) (*BSTNodeCoords, error) {
 		Y: 0,
 	}
 
-	return t.generateCoords(t.root, coords, val)
+	return t.generateCoords(t.root, coords, val, 0)
 }
 
 func (t *BST[T]) inOrder(node *bstNode[T]) []T {
@@ -259,7 +265,7 @@ func (t *BST[T]) inOrder(node *bstNode[T]) []T {
 	if node.right != nil {
 		arr = append(arr, t.inOrder(node.right)...)
 	}
-	
+
 	return arr
 }
 
@@ -283,12 +289,12 @@ func (t *BST[T]) inOrderNode(node *bstNode[T]) []*bstNode[T] {
 	if node.right != nil {
 		arr = append(arr, t.inOrderNode(node.right)...)
 	}
-	
+
 	return arr
 }
 
 func (t *BST[T]) InOrderNode() []*bstNode[T] {
-	return 	t.inOrderNode(t.root)
+	return t.inOrderNode(t.root)
 }
 
 func (t *BST[T]) findParentNode(node *bstNode[T], val T) (*bstNode[T], error) {
@@ -312,35 +318,28 @@ func (t *BST[T]) FindParentNode(val T) (*bstNode[T], error) {
 		return nil, nil
 	}
 
-	return 	t.findParentNode(t.root, val)
+	return t.findParentNode(t.root, val)
 }
 
 type NodeLink[T ComparableSortable] struct {
 	Parent *bstNode[T]
-	Child *bstNode[T]
+	Child  *bstNode[T]
 }
 
+// used to generate links between parent and child nodes
+// for visualization purposes
 func (t *BST[T]) generateLinks(links *[]NodeLink[T], parent, child *bstNode[T]) []NodeLink[T] {
 	if child == nil {
 		return *links
 	}
 
-	if child.left != nil {
+	if parent != nil {
 		nodeLink := NodeLink[T]{
 			Parent: parent,
-			Child: child.left,
+			Child:  child,
 		}
 
-		*links	= append(*links, nodeLink)
-	}
-
-	if child.right != nil {
-		nodeLink := NodeLink[T]{
-			Parent: parent,
-			Child: child.right,
-		}
-
-		*links	= append(*links, nodeLink)
+		*links = append(*links, nodeLink)
 	}
 
 	t.generateLinks(links, child, child.left)
@@ -404,7 +403,7 @@ func (t *BST[T]) PostOrder() []T {
 	return t.postOrder(t.root)
 }
 
-func (t *BST[T]) BFS()  []T {
+func (t *BST[T]) BFS() []T {
 	q := Queue[*bstNode[T]]{}
 	arr := []T{}
 	q.Enqueue(t.root)
@@ -465,7 +464,7 @@ func (t *BST[T]) height(node *bstNode[T]) int {
 	rightHeight := t.height(node.right)
 
 	if leftHeight > rightHeight {
-		return leftHeight + 1 
+		return leftHeight + 1
 	}
 
 	return rightHeight + 1
@@ -478,4 +477,3 @@ func (t *BST[T]) Height() int {
 
 	return t.height(t.root)
 }
-

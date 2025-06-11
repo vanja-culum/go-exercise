@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"go-exercise/ds"
 	"go-exercise/helper"
 	"math/rand"
@@ -82,7 +81,8 @@ func (h DsaHandler) HandleGetDSAFiles(w http.ResponseWriter, r *http.Request) {
 }
 
 type BstGenerate struct {
-	NodeCount int `json:"nodeCount" validate:"required,min=3,max=50"`
+	NodeCount int    `json:"nodeCount" validate:"required,min=3,max=50"`
+	Type      string `json:"type" validate:"required,oneof=balanced unbalanced random perfect"`
 }
 
 type BstGenerateTreeNode struct {
@@ -92,7 +92,7 @@ type BstGenerateTreeNode struct {
 }
 
 type BstEdge struct {
-	Id string `json:"id"`
+	Id     string `json:"id"`
 	Source string `json:"source"`
 	Target string `json:"target"`
 }
@@ -107,8 +107,8 @@ type BstNodePosition struct {
 }
 
 type BstNode struct {
-	Id string `json:"id"`
-	Data BstNodeData `json:"data"`
+	Id       string          `json:"id"`
+	Data     BstNodeData     `json:"data"`
 	Position BstNodePosition `json:"position"`
 }
 
@@ -118,7 +118,6 @@ type BstGenerateResponse struct {
 }
 
 func (h DsaHandler) HandlePostBstGenerate(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("generating....")
 	body, err := helper.Bind[BstGenerate](r)
 	if err != nil {
 		helper.ErrInvalidRequest(err, w, r)
@@ -129,20 +128,17 @@ func (h DsaHandler) HandlePostBstGenerate(w http.ResponseWriter, r *http.Request
 
 	t := ds.BST[int]{}
 
-	count := 0	
+	count := 0
 
 	for count < body.NodeCount {
-		randVal := rand.Intn(body.NodeCount * 10)
+		randVal := rand.Intn(body.NodeCount + 1)
 		_, err := t.Find(randVal)
 
-		fmt.Println("randVal, err", randVal, err)
 		if err != nil {
 			t.Insert(randVal)
 			count++
 		}
 	}
-
-	fmt.Println("1")
 
 	for _, node := range t.InOrderNode() {
 		position, _ := t.GenerateCoords(node.Val)
@@ -162,11 +158,8 @@ func (h DsaHandler) HandlePostBstGenerate(w http.ResponseWriter, r *http.Request
 		respTree.Nodes = append(respTree.Nodes, node)
 	}
 
-	fmt.Println("2")
-
 	links := t.GenerateLinks()
 
-	fmt.Println("3")
 	for _, link := range links {
 		edge := BstEdge{
 			Id: uuid.NewString(),
@@ -187,7 +180,7 @@ func (h DsaHandler) HandlePostBstGenerate(w http.ResponseWriter, r *http.Request
 		} else {
 			// these are root links
 			edge.Source = respTree.Nodes[0].Id
-			
+
 			for _, respNode := range respTree.Nodes {
 				if respNode.Data.Label == strconv.Itoa(link.Child.Val) {
 					edge.Target = respNode.Id
@@ -197,19 +190,8 @@ func (h DsaHandler) HandlePostBstGenerate(w http.ResponseWriter, r *http.Request
 
 			respTree.Edges = append(respTree.Edges, edge)
 		}
-		
+
 	}
 
-	fmt.Println("in")
-
-	fmt.Println("respTree", respTree)
-
-	for _, node := range respTree.Nodes {
-		fmt.Println("node", node)
-	}
-
-	for _, edge := range respTree.Edges {
-		fmt.Println("edge", edge)
-	}
 	helper.Render(w, r, http.StatusOK, respTree)
 }
